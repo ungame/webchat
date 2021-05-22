@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+
+
+    <style>
+        #chat {
+            max-width: 400px;
+            height: 400px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    
+    <div>
+        <div>
+            <textarea id="comment"></textarea>
+        </div>
+        <button type="button" id="btn">Comment</button>
+    </div>
+    <hr />
+    <div id="chat">
+
+    </div>
+
+    <script>
+        let ws = new WebSocket("{{.}}")
+
+        ws.onopen = ev => console.log('ON_OPEN: ', ev);
+
+        ws.onmessage = ev => {
+            console.log('ON_MESSAGE', ev);
+
+            const data = JSON.parse(ev.data);
+
+            let chat = document.getElementById("chat");
+            let el = document.createElement("p");
+            el.innerHTML = data.text;
+            chat.appendChild(el);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        ws.onerror = ev => console.log('ON_ERROR', ev);
+        
+        ws.onclose = ev => console.log('ON_CLOSE', ev);
+
+        const button = document.getElementById("btn");
+
+        let number = Math.ceil(Math.random() * 60);
+
+        button.onclick = function() {
+            const comment = document.getElementById("comment");
+            ws.send(`{"text": "${comment.value.trim()}"}`);
+        }
+    </script>
+</body>
+</html>
